@@ -10,10 +10,29 @@ public class CharacterMovement : MonoBehaviour
     [SerializeField] private float rotationSpeed = 1f;
     TrasformScaleRelativeToViewport trasformScaleRelativeToViewport;
     [SerializeField] private GameObject interactionPrompt;
+    [SerializeField] private GameObject doorPrompt;
     bool canInteract = false;
+    bool canFinish = false;
+    bool canExit = false;
+    bool exited = false;
     bool isInteracting = false;
+    int numberOfCluesInteractedWith;
     private GameObject interactedObject;
     private Interactable[] interactables;
+    private List<Interactable> interactedObjects;
+
+    int countCompleted;
+
+    [Header("Clues")]
+    [SerializeField] private GameObject xrayClue;
+    [SerializeField] private GameObject clipboardClue;
+    [SerializeField] private GameObject patientChartClue;
+    [SerializeField] private GameObject posterClue;
+    [SerializeField] private GameObject vapeDeviceClue;
+    [SerializeField] private GameObject microscopeClue;
+
+
+
 
 
     [SerializeField] private GameObject[] interactableGameobjects;
@@ -28,45 +47,65 @@ public class CharacterMovement : MonoBehaviour
         interactables = new Interactable[interactableGameobjects.Length];
         for (int i = 0; i < interactableGameobjects.Length; i++)
         {
-            if (interactableGameobjects[i].GetComponent<ExtraTags>() != null)
+            if (interactableGameobjects[i] != null)
             {
-                if (interactableGameobjects[i].GetComponent<ExtraTags>().InteractableTypeTag == "Xray")
+                if (interactableGameobjects[i].GetComponent<ExtraTags>() != null)
                 {
-                    interactables[i] = new Xray(interactableGameobjects[i]);
-                }
-                else if (interactableGameobjects[i].GetComponent<ExtraTags>().InteractableTypeTag == "Clipboard")
-                {
-                    interactables[i] = new Clipboard(interactableGameobjects[i]);
-                }
-                else if (interactableGameobjects[i].GetComponent<ExtraTags>().InteractableTypeTag == "VapeDevice")
-                {
-                    interactables[i] = new VapeDevice(interactableGameobjects[i]);
-                }
-                else if (interactableGameobjects[i].GetComponent<ExtraTags>().InteractableTypeTag == "Poster")
-                {
-                    interactables[i] = new Poster(interactableGameobjects[i]);
-                }
-                else if (interactableGameobjects[i].GetComponent<ExtraTags>().InteractableTypeTag == "Microscope")
-                {
-                    interactables[i] = new Microscope(interactableGameobjects[i]);
-                }
-                else if (interactableGameobjects[i].GetComponent<ExtraTags>().InteractableTypeTag == "PatientChart")
-                {
-                    interactables[i] = new PatientChart(interactableGameobjects[i]);
+                    if (interactableGameobjects[i].GetComponent<ExtraTags>().InteractableTypeTag == "Xray")
+                    {
+
+                        interactables[i] = new Xray(interactableGameobjects[i], xrayClue);
+
+                    }
+                    else if (interactableGameobjects[i].GetComponent<ExtraTags>().InteractableTypeTag == "Clipboard")
+                    {
+                        interactables[i] = new Clipboard(interactableGameobjects[i], clipboardClue);
+                    }
+                    else if (interactableGameobjects[i].GetComponent<ExtraTags>().InteractableTypeTag == "VapeDevice")
+                    {
+                        interactables[i] = new VapeDevice(interactableGameobjects[i], vapeDeviceClue);
+                    }
+                    else if (interactableGameobjects[i].GetComponent<ExtraTags>().InteractableTypeTag == "Poster")
+                    {
+                        interactables[i] = new Poster(interactableGameobjects[i], posterClue);
+                    }
+                    else if (interactableGameobjects[i].GetComponent<ExtraTags>().InteractableTypeTag == "Microscope")
+                    {
+                        interactables[i] = new Microscope(interactableGameobjects[i], microscopeClue);
+                    }
+                    else if (interactableGameobjects[i].GetComponent<ExtraTags>().InteractableTypeTag == "PatientChart")
+                    {
+                        interactables[i] = new PatientChart(interactableGameobjects[i], patientChartClue);
+                    }
+                    else
+                    {
+                        interactables[i] = new Interactable(interactableGameobjects[i]);
+                    }
                 }
                 else
                 {
                     interactables[i] = new Interactable(interactableGameobjects[i]);
                 }
             }
-            else
-            {
-                interactables[i] = new Interactable(interactableGameobjects[i]);
-            }
         }
 
         trasformScaleRelativeToViewport = new TrasformScaleRelativeToViewport();
         canInteract = false;
+        canExit = false;
+        canFinish = false;
+        isInteracting = false;
+        exited = false;
+        numberOfCluesInteractedWith = 0;
+        interactedObjects = new List<Interactable>();
+        microscopeClue.SetActive(false);
+        xrayClue.SetActive(false);
+        posterClue.SetActive(false);
+        patientChartClue.SetActive(false);
+        vapeDeviceClue.SetActive(false);
+        clipboardClue.SetActive(false);
+        doorPrompt.SetActive(false);
+        countCompleted = 0;
+
 
     }
     private void Update()
@@ -78,18 +117,26 @@ public class CharacterMovement : MonoBehaviour
                 if (!isInteracting)
                 {
                     isInteracting = true;
+                    Interact();
+
                 }
                 else
                 {
                     isInteracting = false;
+                    EndInteraction();
+
                 }
             }
             else
             {
                 isInteracting = false;
             }
+            if (canExit)
+            {
+                InitiateGameExit();
+            }
         }
-        if (!isInteracting)
+        if (!isInteracting && !exited)
         {
             if (trasformScaleRelativeToViewport == null)
             {
@@ -128,7 +175,6 @@ public class CharacterMovement : MonoBehaviour
         else
         {
             interactionPrompt.GetComponent<Canvas>().enabled = false;
-            Interact();
 
         }
 
@@ -157,71 +203,74 @@ public class CharacterMovement : MonoBehaviour
     private void Interact()
     {
 
-        Interactable temp;
-
-        foreach (Interactable interactable in interactables)
+        for (int i = 0; i < interactables.Length; i++)
         {
             if (interactedObject != null)
             {
-                if (interactable.checkIfInteractedObject(interactedObject))
+                if (interactables[i].checkIfInteractedObject(interactedObject))
                 {
-                    if(interactable is Xray)
+
+                    interactables[i].EnableClue();
+
+                    break;
+                }
+            }
+            else
+            {
+                break;
+            }
+        }
+
+
+    }
+    private void EndInteraction()
+    {
+        for (int i = 0; i < interactables.Length; i++)
+        {
+            if (interactedObject != null)
+            {
+                if (interactables[i].checkIfInteractedObject(interactedObject))
+                {
+                    if (interactables[i].getInteracted() == false)
                     {
-                        temp = new Xray(interactable);
-                        break;
+                        interactedObjects.Add(interactables[i]);
                     }
-                    else if (interactable is Clipboard)
+                    interactables[i].DisableClue();
+
+                    break;
+                }
+            }
+            else
+            {
+                break;
+            }
+        }
+        CanFinish();
+    }
+    void CanFinish()
+    {
+        countCompleted = 0;
+        if (!canFinish) {
+            for (int i = 0; i < interactables.Length; i++)
+            {
+                for (int j = 0; j < interactedObjects.Count; j++)
+                {
+                    if (interactedObjects[j] == interactables[i])
                     {
-                        temp = new Clipboard(interactable);
+                        countCompleted++;
                         break;
-                    }
-                    else if (interactable is PatientChart)
-                    {
-                        temp = new PatientChart(interactable);
-                        break;
-                    }
-                    else if (interactable is Poster)
-                    {
-                        temp = new Poster(interactable);
-                        break;
-                    }
-                    else if (interactable is Microscope)
-                    {
-                        temp = new Microscope(interactable);
-                        break;
-                    }
-                    else if (interactable is VapeDevice)
-                    {
-                        temp = new VapeDevice(interactable);
-                        break;
-                    }
-                    else
-                    {
-                        temp = new Interactable(interactable);
-                        interactable.Interacted();
-                        isInteracting = false;
-                        return;
                     }
                 }
             }
-
-        }
-
-    }
-
-    bool CanFinish()
-    {
-        foreach(Interactable interactable in interactables)
-        {
-            if(interactable.getInteracted() == false)
+            if(countCompleted == interactables.Length)
             {
-                return false;
+                canFinish = true;
+                Debug.Log(canFinish);
             }
         }
-        return true;
     }
 
-    
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.tag == "InteractableObjects")
@@ -229,6 +278,18 @@ public class CharacterMovement : MonoBehaviour
             interactedObject = collision.gameObject;
             canInteract = true;
         }
+        if (collision.tag == "Exit")
+        {
+            if (canFinish)
+            {
+                doorPrompt.SetActive(true);
+                canExit = true;
+            }
+        }
+    }
+    private void InitiateGameExit()
+    {
+        exited = true;
     }
     private void OnTriggerStay2D(Collider2D collision)
     {
@@ -241,6 +302,11 @@ public class CharacterMovement : MonoBehaviour
             interactedObject = null;
 
             canInteract = false;
+        }
+        if (collision.tag == "Exit")
+        {
+            doorPrompt.SetActive(false);
+            canExit = false;
         }
 
     }

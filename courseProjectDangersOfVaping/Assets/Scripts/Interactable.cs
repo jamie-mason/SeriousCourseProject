@@ -1,11 +1,18 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class Interactable
 {
     protected GameObject InteractableObject;
     protected bool hasInteracted;
+    public Interactable()
+    {
+        this.InteractableObject = null;
+        hasInteracted = false;
+    }
 
     public Interactable(GameObject interactableObject)
     {
@@ -43,152 +50,220 @@ public class Interactable
 
         return false;
     }
+    public virtual void EnableClue()
+    {
+
+    }
+    public virtual void DisableClue()
+    {
+
+    }
+
+
 }
 
 public class Xray : Interactable
 {
-    public Xray(GameObject interactableObject) : base(interactableObject)
+    private GameObject clue;
+    public Xray(GameObject interactableObject,GameObject clue) : base(interactableObject)
     {
-
+        this.clue = clue;
     }
-    public Xray(Interactable xray) : base(xray)
+    public Xray(Interactable xray, GameObject clue) : base(xray)
     {
-
+        this.clue = clue;
     }
     public Xray(Xray xray) : base(xray)
     {
-
+        this.InteractableObject = xray.InteractableObject;
+        this.hasInteracted = xray.hasInteracted;
+        this.clue = xray.clue;
     }
-    private void completed(bool status)
+    
+    public override void EnableClue()
     {
-        status = hasInteracted;
+        clue.SetActive(true);
+        
+            
     }
-    public void EnableClue()
+    public override void DisableClue()
     {
-        completed(true);
+        clue.SetActive(false);
+        Interacted();
 
     }
 }
 
 public class Clipboard : Interactable
 {
-    public Clipboard(GameObject interactableObject) : base(interactableObject)
+    private GameObject clue;
+
+    public Clipboard(GameObject interactableObject, GameObject clue) : base(interactableObject)
     {
+        this.clue = clue;
 
     }
-    public Clipboard(Interactable clipboard) : base(clipboard)
+    public Clipboard(Interactable clipboard, GameObject clue) : base(clipboard)
     {
+        this.clue = clue;
 
     }
     public Clipboard(Clipboard clipboard) : base(clipboard)
     {
+        this.InteractableObject = clipboard.InteractableObject;
+        this.hasInteracted = clipboard.hasInteracted;
+        this.clue = clipboard.clue;
+    }
+
+    public override void EnableClue()
+    {
+        clue.SetActive(true);
+
 
     }
-    private void completed(bool status)
+    public override void DisableClue()
     {
-        status = hasInteracted;
-    }
-    public void EnableClue()
-    {
-        completed(true);
+        clue.SetActive(false);
+        Interacted();
 
     }
 }
 public class Poster : Interactable
 {
-    public Poster(GameObject interactableObject) : base(interactableObject)
+    private GameObject clue;
+
+    public Poster(GameObject interactableObject, GameObject clue) : base(interactableObject)
     {
+        this.clue = clue;
 
     }
-    public Poster(Interactable poster) : base(poster)
+    public Poster(Interactable poster, GameObject clue) : base(poster)
     {
+        this.clue = clue;
 
     }
     public Poster(Poster poster) : base(poster)
     {
+        this.InteractableObject = poster.InteractableObject;
+        this.hasInteracted = poster.hasInteracted;
+        this.clue = poster.clue;
+    }
+
+    public override void EnableClue()
+    {
+        clue.SetActive(true);
+
 
     }
-    private void completed(bool status)
+    public override void DisableClue()
     {
-        status = hasInteracted;
-    }
-    public void EnableClue()
-    {
-        completed(true);
+        clue.SetActive(false);
+        Interacted();
 
     }
 }
 
 public class Microscope : Interactable
 {
-    public Microscope(GameObject interactableObject) : base(interactableObject)
+    private GameObject clue;
+
+    public Microscope(GameObject interactableObject, GameObject clue) : base(interactableObject)
     {
+        this.clue = clue;
 
     }
-    public Microscope(Interactable microscope) : base(microscope)
+    public Microscope(Interactable microscope, GameObject clue) : base(microscope)
     {
+        this.clue = clue;
 
     }
     public Microscope(Microscope microscope) : base(microscope)
     {
+        this.InteractableObject = microscope.InteractableObject;
+        this.hasInteracted = microscope.hasInteracted;
+        this.clue = microscope.clue;
+    }
+
+    public override void EnableClue()
+    {
+        clue.SetActive(true);
+
 
     }
-    private void completed(bool status)
+    public override void DisableClue()
     {
-        status = hasInteracted;
-    }
-    public void EnableClue()
-    {
-        completed(true);
+        clue.SetActive(false);
+        Interacted();
 
     }
 }
 
 public class PatientChart : Interactable
 {
-    public PatientChart(GameObject interactableObject) : base(interactableObject)
-    {
+    private GameObject clue;
 
-    }
-    public PatientChart(Interactable patientChart) : base(patientChart)
+    public PatientChart(GameObject interactableObject, GameObject clue) : base(interactableObject)
     {
+        this.clue = clue;
+    }
+    public PatientChart(Interactable patientChart, GameObject clue) : base(patientChart)
+    {
+        this.clue = clue;
 
     }
     public PatientChart(PatientChart patientChart) : base(patientChart)
     {
+        this.InteractableObject = patientChart.InteractableObject;
+        this.hasInteracted = patientChart.hasInteracted;
+        this.clue = patientChart.clue;
 
     }
-    private void completed(bool status)
+
+    public override void EnableClue()
     {
-        status = hasInteracted;
+        clue.SetActive(true);
+
+
     }
-    public void EnableClue()
+    public override void DisableClue()
     {
-        completed(true);
+        clue.SetActive(false);
+        Interacted();
+
     }
 }
 
 public class VapeDevice : Interactable
 {
-    public VapeDevice(GameObject interactableObject) : base(interactableObject)
+    private GameObject clue;
+
+    public VapeDevice(GameObject interactableObject, GameObject clue) : base(interactableObject)
     {
+        this.clue = clue;
 
     }
-    public VapeDevice(Interactable vapeDevice) : base(vapeDevice)
+    public VapeDevice(Interactable vapeDevice, GameObject clue) : base(vapeDevice)
     {
+        this.clue = clue;
 
     }
-    public VapeDevice(VapeDevice vapeDevice) : base(vapeDevice)
+    public VapeDevice(VapeDevice vapeDevice, GameObject clue) : base(vapeDevice)
     {
+        this.InteractableObject = vapeDevice.InteractableObject;
+        this.hasInteracted = vapeDevice.hasInteracted;
+        this.clue = vapeDevice.clue;
+    }
+
+    public override void EnableClue()
+    {
+        clue.SetActive(true);
+
 
     }
-    private void completed(bool status)
+    public override void DisableClue()
     {
-        status = hasInteracted;
-    }
-    public void EnableClue()
-    {
-        completed(true);
+        clue.SetActive(false);
+        Interacted();
 
     }
 }
