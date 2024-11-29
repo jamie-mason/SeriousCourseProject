@@ -56,7 +56,7 @@ public class Interactable
     }
     public virtual void DisableClue()
     {
-
+        Interacted();
     }
 
 

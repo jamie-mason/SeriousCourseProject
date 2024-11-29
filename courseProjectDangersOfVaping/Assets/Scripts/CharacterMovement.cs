@@ -20,7 +20,7 @@ public class CharacterMovement : MonoBehaviour
     private GameObject interactedObject;
     private Interactable[] interactables;
     private List<Interactable> interactedObjects;
-
+    [SerializeField] private GameObject exitDoorScene;
     int countCompleted;
 
     [Header("Clues")]
@@ -104,6 +104,7 @@ public class CharacterMovement : MonoBehaviour
         vapeDeviceClue.SetActive(false);
         clipboardClue.SetActive(false);
         doorPrompt.SetActive(false);
+        exitDoorScene.SetActive(false);
         countCompleted = 0;
 
 
@@ -265,7 +266,7 @@ public class CharacterMovement : MonoBehaviour
             if(countCompleted == interactables.Length)
             {
                 canFinish = true;
-                Debug.Log(canFinish);
+                Debug.Log("Can now Finish");
             }
         }
     }
@@ -282,14 +283,20 @@ public class CharacterMovement : MonoBehaviour
         {
             if (canFinish)
             {
-                doorPrompt.SetActive(true);
+                if(!doorPrompt.activeSelf){
+                    doorPrompt.SetActive(true);
+                }
                 canExit = true;
             }
         }
     }
     private void InitiateGameExit()
     {
+        Debug.Log("Exited Game");
         exited = true;
+        if(!exitDoorScene.activeSelf){
+            exitDoorScene.SetActive(true);
+        }
     }
     private void OnTriggerStay2D(Collider2D collision)
     {
@@ -305,7 +312,9 @@ public class CharacterMovement : MonoBehaviour
         }
         if (collision.tag == "Exit")
         {
-            doorPrompt.SetActive(false);
+            if(doorPrompt.activeSelf){
+                doorPrompt.SetActive(false);
+            }
             canExit = false;
         }
 
