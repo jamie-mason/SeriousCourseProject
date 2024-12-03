@@ -65,7 +65,7 @@ public class Interactable
 public class Xray : Interactable
 {
     private GameObject clue;
-    public Xray(GameObject interactableObject,GameObject clue) : base(interactableObject)
+    public Xray(GameObject interactableObject, GameObject clue) : base(interactableObject)
     {
         this.clue = clue;
     }
@@ -79,12 +79,12 @@ public class Xray : Interactable
         this.hasInteracted = xray.hasInteracted;
         this.clue = xray.clue;
     }
-    
+
     public override void EnableClue()
     {
         clue.SetActive(true);
-        
-            
+
+
     }
     public override void DisableClue()
     {

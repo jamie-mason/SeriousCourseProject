@@ -30,13 +30,7 @@ public class CharacterMovement : MonoBehaviour
     [SerializeField] private GameObject posterClue;
     [SerializeField] private GameObject vapeDeviceClue;
     [SerializeField] private GameObject microscopeClue;
-
-
-
-
-
     [SerializeField] private GameObject[] interactableGameobjects;
-
 
     private void Start()
     {
@@ -88,7 +82,6 @@ public class CharacterMovement : MonoBehaviour
                 }
             }
         }
-
         trasformScaleRelativeToViewport = new TrasformScaleRelativeToViewport();
         canInteract = false;
         canExit = false;
@@ -106,8 +99,6 @@ public class CharacterMovement : MonoBehaviour
         doorPrompt.SetActive(false);
         exitDoorScene.SetActive(false);
         countCompleted = 0;
-
-
     }
     private void Update()
     {
@@ -119,13 +110,11 @@ public class CharacterMovement : MonoBehaviour
                 {
                     isInteracting = true;
                     Interact();
-
                 }
                 else
                 {
                     isInteracting = false;
                     EndInteraction();
-
                 }
             }
             else
